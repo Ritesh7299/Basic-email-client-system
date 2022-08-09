@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="description" content="Homework for CS 565 at Oregon State University">
+	<meta name="author" content="Minsuk Kahng and WRITE_DOWN_YOUR_NAME">
+	
+	<title>CS 565 HW 5</title>
+
+	<script src="https://unpkg.com/vue@3"></script>
+
+	<!-- This is for drawing the star icon. -->
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+	<style type="text/css">
+		html, body {
+			font-family: Arial;
+			font-size: 14px;
+		}
+		#app {
+			display: flex;
+			width: 1120px;
+		}
+		#email-list {
+			width: 600px;
+		}
+		#emails {
+			width: 580px;	
+			border-collapse: collapse;
+
+		}
+		.selected-email {
+			width: 600px;
+			margin-left: 20px;
+			border: 2px solid rgb(19, 18, 18);
+			border-radius: 8px;
+			padding: 0px 20px 10px 20px;
+		}
+		.star{
+			width: 20px;
+			text-align: end;
+		}
+		.from{
+			width: 170px;
+		}
+		.title{
+			width: 260px;
+			color: rgb(20, 20, 248);
+		}
+		.from2{
+			width: 370px;
+			color: lightgray;
+		}
+		.date{
+			width: 130px;
+		}
+		.date2{
+			width: 130px;
+			text-align: end;
+			color: lightgray;
+		}
+		.content{
+			padding: 2px 5px 2px;
+		}
+		tr{
+			border-bottom:  1px  solid black;
+		}
+		td{
+			border-bottom: 1px solid rgba(191, 183, 183, 0.945);;
+		}
+		.tl:hover{
+			background-color: rgba(54, 55, 55, 0.541);
+			cursor: pointer;
+		}
+		.tl.bl{
+			background-color: rgba(145, 250, 215, 0.671);
+		}
+		.fa-star.grey {
+			color: rgba(62, 63, 63, 0.621);	
+			
+		}
+		.fa-star.yellow {
+			color: rgba(255, 191, 0, 0.94);	
+			
+		}
+	</style>
+</head>
+
+<body>
+	<div id="app">
+
+		<div id="email-list">
+			<table v-for="email in emails" id="emails">
+				<div class="email">
+					<tr>{{emails.length}} emails ({{starred}} starred)</tr>
+					<tr v-if="email==selected_email" class="tl bl" v-on:click="selectEmail(email)" >
+						<td class="star">
+							<i v-if="email.star" v-on:click.stop="" v-on:click="star(email)" class="fa fa-star yellow"></i>
+							<i v-if="!email.star" v-on:click.stop="" v-on:click="star(email)" class="fa fa-star grey"></i>
+						</td>
+						<td class="from">
+							{{email.from}}
+						</td>
+						<td class="title" >
+							{{email.title}}
+						</td>
+						<td class="date">
+							{{email.date}}
+						</td>
+					</tr>
+					<tr v-else="" class="tl" v-on:click="selectEmail(email)">
+						<td class="star">
+							<i v-if="email.star" v-on:click.stop="" v-on:click="star(email)" class="fa fa-star yellow"></i>
+							<i v-if="!email.star" v-on:click.stop="" v-on:click="star(email)" class="fa fa-star grey"></i>
+						</td>
+						<td class="from">
+							{{email.from}}
+						</td>
+						<td class="title" >
+							{{email.title}}
+						</td>
+						<td class="date">
+							{{email.date}}
+						</td>
+					</tr>
+				</div>
+			</table>
+		</div>
+
+		<div class="selected-email" v-if="selectedEmail.title">
+
+			<table>
+				<tr class="tr1">
+					<td><h2>{{selectedEmail.title}}</h2></td>
+					<td class="star">
+						<i v-if="selectedEmail.star" v-on:click="star(selected_email)" class="fa fa-star yellow"></i>
+						<i v-if="!selectedEmail.star" v-on:click="star(selected_email)" class="fa fa-star grey"></i>
+					</td>
+				</tr>
+				
+				<tr class="tr1">
+					<td class="from2">{{selectedEmail.from}}</td>
+					<td class="date2">{{selectedEmail.date}}</td>		
+				</tr>
+			</table>
+			<div class="content" v-html="selectedEmail.content">
+				{{selectedEmail.content}}
+			</div>
+		</div>
+	</div>
+
+	<script type="text/javascript">
+		
+		const { createApp } = Vue;
+
+		const app = createApp({
+			data() {
+				return {
+					emails: [],
+					selected_email: {},
+					starred:0
+				}
+			},
+			methods: {
+				selectEmail: function(email){
+					this.selected_email=email;
+					
+				},
+				star: function(email){
+					email.star= !email.star;
+					if(email.star == true){
+						this.starred++;
+					} else{
+						this.starred--;
+					}
+				},
+			},
+			computed: {
+				selectedEmail: function(){
+					return this.selected_email;
+				}
+
+			},
+			beforeMount() {
+				fetch("cs565_hw5_email_data.json")
+					.then(response => response.json())
+					.then(jsonData => {
+						this.emails = jsonData.emails;
+						console.log("The list of emails has been loaded:", this.emails);
+						this.selected_email={};
+					});
+			}
+		})
+		app.mount("#app");
+	</script>
+</body>
+</html>
